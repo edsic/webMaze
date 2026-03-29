@@ -62,9 +62,19 @@ h1 {
   background: var(--gray-900);
   border: 1px solid var(--gray-700);
   padding: 3rem;
+  max-width: 90%;
   text-align: center;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   animation: modal-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@media (max-width: 600px) {
+  .selection-modal, .win-modal {
+    padding: 1.5rem;
+  }
+  h1 {
+    font-size: 1.8rem;
+  }
 }
 
 .selection-modal h2, .win-modal h2 {

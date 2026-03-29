@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useMaze } from './hooks/useMaze';
-import { useKeyboard } from './hooks/useKeyboard';
+import { useMovement } from './hooks/useMovement';
+import { useIsTouchDevice } from './hooks/useIsTouchDevice';
 import { Maze } from './components/Maze';
+import { Joystick } from './components/Joystick';
 import './App.css';
 
 type GameState = 'START' | 'PLAYING' | 'WON';
@@ -17,12 +19,13 @@ function App() {
   const [gameState, setGameState] = useState<GameState>('START');
   const [mazeSize, setMazeSize] = useState(MAZE_SIZES.MEDIUM);
   const { grid, generateMaze } = useMaze(mazeSize, mazeSize);
+  const isTouchDevice = useIsTouchDevice();
 
   const handleWin = useCallback(() => {
     setGameState('WON');
   }, []);
 
-  const { playerPos, trail, visited, resetPlayer } = useKeyboard(grid, handleWin);
+  const { playerPos, trail, visited, resetPlayer, setTouchVector } = useMovement(grid, handleWin);
 
   const startNewGame = useCallback((difficulty?: Difficulty) => {
     const size = difficulty ? MAZE_SIZES[difficulty] : mazeSize;
@@ -42,7 +45,9 @@ function App() {
     <div className="app-container">
       <header>
         <h1>Monochrome Maze</h1>
-        <p className="controls">Use Arrow Keys or WASD to move</p>
+        <p className="controls">
+          {isTouchDevice ? 'Use Virtual Joystick to move' : 'Use Arrow Keys or WASD to move'}
+        </p>
       </header>
 
       <main>
@@ -58,8 +63,12 @@ function App() {
             </div>
           </div>
         ) : (
-          <Maze grid={grid} playerPos={playerPos} trail={trail} visited={visited} />
+          <>
+            <Maze grid={grid} playerPos={playerPos} trail={trail} visited={visited} />
+            {gameState === 'PLAYING' && isTouchDevice && <Joystick onMove={setTouchVector} />}
+          </>
         )}
+
         
         {gameState === 'WON' && (
           <div className="win-overlay">

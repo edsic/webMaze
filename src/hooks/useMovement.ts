@@ -6,11 +6,12 @@ interface Position {
   y: number;
 }
 
-export const useKeyboard = (grid: CellType[][], onWin: () => void) => {
+export const useMovement = (grid: CellType[][], onWin: () => void) => {
   const [playerPos, setPlayerPos] = useState<Position>({ x: 1.5, y: 1.5 });
   const [trail, setTrail] = useState<Position[]>([]);
   const [visited, setVisited] = useState<Set<string>>(new Set(["1,1"]));
   const keysPressed = useRef<Set<string>>(new Set());
+  const touchVector = useRef<Position>({ x: 0, y: 0 });
   const requestRef = useRef<number>(null);
   
   const playerRadius = 0.3; 
@@ -48,8 +49,8 @@ export const useKeyboard = (grid: CellType[][], onWin: () => void) => {
   }, [grid, onWin]);
 
   const update = useCallback(() => {
-    let dx = 0;
-    let dy = 0;
+    let dx = touchVector.current.x;
+    let dy = touchVector.current.y;
 
     if (keysPressed.current.has('ArrowUp') || keysPressed.current.has('w')) dy -= 1;
     if (keysPressed.current.has('ArrowDown') || keysPressed.current.has('s')) dy += 1;
@@ -126,7 +127,12 @@ export const useKeyboard = (grid: CellType[][], onWin: () => void) => {
     setPlayerPos({ x: 1.5, y: 1.5 });
     setTrail([]);
     setVisited(new Set(["1,1"]));
+    touchVector.current = { x: 0, y: 0 };
   }, []);
 
-  return { playerPos, trail, visited, resetPlayer };
+  const setTouchVector = useCallback((x: number, y: number) => {
+    touchVector.current = { x, y };
+  }, []);
+
+  return { playerPos, trail, visited, resetPlayer, setTouchVector };
 };
